@@ -13,4 +13,4 @@ Can be easily adjusted for any device with a reliable and POSIX-compatible files
 Check out ESP32 [Preferences library](https://espressif-docs.readthedocs-hosted.com/projects/arduino-esp32/en/latest/api/preferences.html) API.
 Differences:
 - `partition_label` argument is not supported in `begin()`
-- `getType()` and `freeEntries()` methods are not supported
+- `getType()` and `freeEntries()` methods are not supported (returning dummy values)
