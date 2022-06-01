@@ -1,7 +1,7 @@
 {
   "name": "Preferences",
   "version": "2.0.0",
-  "description": "",
+  "description": "Preferences library for ESP8266 and Particle Gen3 devices, with ESP32-compatible API",
   "keywords": "preferences, settings, storage, fs, filesystem",
   "authors":
   {
