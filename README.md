@@ -1,5 +1,5 @@
 # Preferences
-Preferences library for **ESP8266** and **Particle Gen3** devices. **ESP32**-compatible.
+Preferences library for **ESP8266** and **Particle Gen3** devices. **ESP32**-compatible API.
 
 ## Supported devices
 
