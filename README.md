@@ -7,6 +7,23 @@ Available from: `Arduino Library Manager`, [`PlatformIO`](https://registry.platf
 
 ## How does it work?
 
+```cpp
+#include <Preferences.h>
+Preferences prefs;
+
+void setup() {
+  Serial.begin(115200);
+  prefs.begin("my-app");
+
+  int counter = prefs.getInt("counter", 1); // default to 1
+  Serial.printf("Reboot count: %u\n", counter);
+  counter++;
+  prefs.putUInt("counter", counter);
+}
+
+void loop() {}
+```
+
 Preferences are stored in the internal flash filesystem in a bunch of `/nvs/{namespace}/{property}` files.  
 Filesystem should handle flash wearing, bad sectors and atomic `rename` file operation.  
 `LittleFS` handles all that, so this is the default FS driver for ESP8266.  
