@@ -5,7 +5,8 @@ Preferences library for **ESP8266** and **Particle Gen3** devices. **ESP32**-com
 
 - Arduino ESP8266 with LittleFS or SPIFFS
 - Particle Argon, Boron, Xenon, Tracker, BSOM
-- Any device with a reliable and POSIX-compatible filesystem
+
+Can be easily adjusted for any device with a reliable and POSIX-compatible filesystem
 
 ## API
 
