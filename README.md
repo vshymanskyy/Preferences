@@ -1,7 +1,7 @@
 # Preferences
 Preferences library for **ESP8266** and **Particle Gen3** devices. **ESP32**-compatible API.
 
-Available from: `Arduino Library Manager`, `PlatformIO`, `Particle Build`
+Available from: `Arduino Library Manager`, [`PlatformIO`](https://registry.platformio.org/libraries/vshymanskyy/Preferences), [`Particle Build`](https://build.particle.io/libs/Preferences)
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
 
