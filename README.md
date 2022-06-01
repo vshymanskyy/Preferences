@@ -3,6 +3,13 @@ Preferences library for **ESP8266** and **Particle Gen3** devices. **ESP32**-com
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
 
+## How does it work?
+
+Preferences are stored in the internal flash filesystem in a bunch of `/nvs/{namespace}/{property}` files.  
+Filesystem should handle flash wearing, bad sectors and atomic `rename` file operation.  
+`LittleFS` handles all that, so this is the default FS driver for ESP8266.  
+Particle Gen3 devices also operate on `LittleFS` filesystem.
+
 ## Supported devices
 
 - Arduino ESP8266 with LittleFS or SPIFFS
