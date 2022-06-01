@@ -1,6 +1,8 @@
 # Preferences
 Preferences library for **ESP8266** and **Particle Gen3** devices. **ESP32**-compatible API.
 
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
+
 ## Supported devices
 
 - Arduino ESP8266 with LittleFS or SPIFFS
