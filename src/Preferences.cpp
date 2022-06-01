@@ -428,6 +428,10 @@ size_t Preferences::putBytes(const char* key, const void* buf, size_t len){
     }
 }
 
+PreferenceType Preferences::getType(const char* key) {
+    return PT_INVALID;
+}
+
 bool Preferences::isKey(const char* key) {
     if(!_started || !key){
         return false;
@@ -573,4 +577,8 @@ size_t Preferences::getBytes(const char* key, void * buf, size_t maxLen){
     }
 
     return _fs_read(path.c_str(), buf, len);
+}
+
+size_t Preferences::freeEntries() {
+    return 1000;
 }
