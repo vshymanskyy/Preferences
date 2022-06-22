@@ -1,4 +1,8 @@
 # Preferences
+
+[![Arduino Library Manager](https://img.shields.io/static/v1?label=Arduino&message=v2.0.0&logo=arduino&logoColor=white&color=blue)](https://www.ardu-badge.com/Preferences)
+[![PlatformIO Registry](https://badges.registry.platformio.org/packages/vshymanskyy/library/Preferences.svg)](https://registry.platformio.org/packages/libraries/vshymanskyy/Preferences) 
+
 Preferences library for **ESP8266** and **Particle Gen3** devices. **ESP32**-compatible API.
 
 Available from: `Arduino Library Manager`, [`PlatformIO`](https://registry.platformio.org/libraries/vshymanskyy/Preferences), [`Particle Build`](https://build.particle.io/libs/Preferences)
