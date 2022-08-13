@@ -173,7 +173,7 @@ size_t Preferences::putString(const char* key, const String value){
 }
 
 size_t Preferences::putBytes(const char* key, const void* buf, size_t len){
-    if(!_started || !key || !buf || !len || _readOnly){
+    if(!_started || !key || !buf || len < 0 || _readOnly){
         return 0;
     }
 
