@@ -3,7 +3,10 @@
 [![Arduino Library Manager](https://img.shields.io/static/v1?label=Arduino&message=v2.0.0&logo=arduino&logoColor=white&color=blue)](https://www.ardu-badge.com/Preferences)
 [![PlatformIO Registry](https://badges.registry.platformio.org/packages/vshymanskyy/library/Preferences.svg)](https://registry.platformio.org/packages/libraries/vshymanskyy/Preferences) 
 
-Preferences library for **ESP8266** and **Particle Gen3** devices. **ESP32**-compatible API.
+Provides **ESP32**-compatible **Preferences** API for a wider variety of platforms:
+- **ESP8266** using LittleFS
+- **RP2040** boards with [Pico core](https://github.com/earlephilhower/arduino-pico)
+- **Particle Gen3**
 
 Available from: [`Arduino Library Manager`](https://www.arduino.cc/reference/en/libraries/preferences), [`PlatformIO`](https://registry.platformio.org/libraries/vshymanskyy/Preferences), [`Particle Build`](https://build.particle.io/libs/Preferences)
 
