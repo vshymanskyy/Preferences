@@ -9,7 +9,7 @@
   #define NVS_USE_POSIX
 #elif defined(PARTICLE) && (PLATFORM_ID == PLATFORM_BSOM || PLATFORM_ID == PLATFORM_B5SOM || PLATFORM_ID == PLATFORM_TRACKER)
   #define NVS_USE_POSIX
-#elif defined(ARDUINO) && defined(ESP8266)
+#elif defined(ARDUINO) && (defined(ESP8266) || defined(ARDUINO_ARCH_RP2040))
   #if !defined(NVS_USE_LITTLEFS) && !defined(NVS_USE_SPIFFS)
     #define NVS_USE_LITTLEFS    // Use LittleFS by default
     //#define NVS_USE_SPIFFS
@@ -173,7 +173,7 @@ size_t Preferences::putString(const char* key, const String value){
 }
 
 size_t Preferences::putBytes(const char* key, const void* buf, size_t len){
-    if(!_started || !key || !buf || !len || _readOnly){
+    if(!_started || !key || !buf || _readOnly){
         return 0;
     }
 
