@@ -17,6 +17,7 @@ static bool _fs_init() {
 
 static bool _fs_mkdir(const char *path) {
     // Path are automatically created as needed
+    (void)path;
     return true;
 }
 
@@ -48,6 +49,7 @@ static int _fs_create(const char* path, const void* buf, int bufsize) {
     return -1;
 }
 
+#ifdef NVS_USE_SPIFFS
 static int _fs_update(const char* path, const void* buf, int bufsize) {
     if (File f = FS.open(path, "r+")) {
         if (verifyContent(f, buf, bufsize)) {
@@ -61,6 +63,7 @@ static int _fs_update(const char* path, const void* buf, int bufsize) {
     }
     return _fs_create(path, buf, bufsize);
 }
+#endif
 
 static int _fs_read(const char* path, void* buf, int bufsize) {
     if (File f = FS.open(path, "r")) {

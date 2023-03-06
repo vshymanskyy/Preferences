@@ -5,21 +5,21 @@
   #define NVS_PATH "/nvs"
 #endif
 
-#if defined(PARTICLE) && (PLATFORM_ID == PLATFORM_ARGON || PLATFORM_ID == PLATFORM_BORON || PLATFORM_ID == PLATFORM_XENON)
+#if defined(NVS_USE_POSIX) || defined(NVS_USE_LITTLEFS) || defined(NVS_USE_SPIFFS)
+  // OK, use it.
+#elif defined(NVS_USE_DUMMY)
+  // OK, warn about it.
+  #warning "Dummy implementation is used, Preferences won't actually store the values"
+#elif defined(PARTICLE) && (PLATFORM_ID == PLATFORM_ARGON || PLATFORM_ID == PLATFORM_BORON || PLATFORM_ID == PLATFORM_XENON)
   #define NVS_USE_POSIX
 #elif defined(PARTICLE) && (PLATFORM_ID == PLATFORM_BSOM || PLATFORM_ID == PLATFORM_B5SOM || PLATFORM_ID == PLATFORM_TRACKER)
   #define NVS_USE_POSIX
 #elif defined(ARDUINO) && (defined(ESP8266) || defined(ARDUINO_ARCH_RP2040))
-  #if !defined(NVS_USE_LITTLEFS) && !defined(NVS_USE_SPIFFS)
-    #define NVS_USE_LITTLEFS    // Use LittleFS by default
-    //#define NVS_USE_SPIFFS
-  #endif
+  #define NVS_USE_LITTLEFS    // Use LittleFS by default
 #elif defined(ARDUINO) && defined(ESP32)
   #error "For ESP32 devices, please use native Preferences library"
-#elif defined(NVS_USE_DUMMY)
-  #warning "Dummy implementation is used, Preferences won't actually store the values"
 #else
-  #error "FS API not implemented for target platform"
+  #error "FS API not implemented for the target platform"
 #endif
 
 //#define NVS_LOG
@@ -208,6 +208,7 @@ size_t Preferences::putBytes(const char* key, const void* buf, size_t len){
 }
 
 PreferenceType Preferences::getType(const char* key) {
+    (void)key;
     return PT_INVALID;
 }
 
