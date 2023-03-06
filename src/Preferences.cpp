@@ -16,6 +16,8 @@
   #endif
 #elif defined(ARDUINO) && defined(ESP32)
   #error "For ESP32 devices, please use native Preferences library"
+#elif defined(NVS_USE_DUMMY)
+  #warning "Dummy implementation is used, Preferences won't actually store the values"
 #else
   #error "FS API not implemented for target platform"
 #endif
@@ -44,6 +46,8 @@
   #include "prefs_impl_posix.h"
 #elif defined(NVS_USE_LITTLEFS) || defined(NVS_USE_SPIFFS)
   #include "prefs_impl_arduino.h"
+#elif defined(NVS_USE_DUMMY)
+  #include "prefs_impl_dummy.h"
 #endif
 
 Preferences::Preferences()
