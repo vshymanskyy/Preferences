@@ -6,7 +6,8 @@
 Provides **ESP32**-compatible **Preferences** API for a wider variety of platforms:
 - **ESP8266** using LittleFS
 - **RP2040** boards with [Pico core](https://github.com/earlephilhower/arduino-pico)
-- **Particle Gen3**
+- **Arduino Nano 33 IoT, MKR1010, MKR VIDOR** using WiFiNINA storage
+- **Particle Gen3 devices: Argon, Boron, Xenon, Tracker, BSOM**
 
 Available from: [`Arduino Library Manager`](https://www.arduino.cc/reference/en/libraries/preferences), [`PlatformIO`](https://registry.platformio.org/libraries/vshymanskyy/Preferences), [`Particle Build`](https://build.particle.io/libs/Preferences)
 
@@ -35,13 +36,6 @@ Preferences are stored in the internal flash filesystem in a bunch of `/nvs/{nam
 Filesystem should handle flash wearing, bad sectors and atomic `rename` file operation.  
 `LittleFS` handles all that, so this is the default FS driver for ESP8266.  
 Particle Gen3 devices also operate on `LittleFS` filesystem.
-
-## Supported devices
-
-- Arduino ESP8266 with LittleFS or SPIFFS
-- Particle Argon, Boron, Xenon, Tracker, BSOM
-
-Can be easily adjusted for any device with a reliable and POSIX-compatible filesystem
 
 ## API
 

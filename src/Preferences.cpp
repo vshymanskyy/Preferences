@@ -1,25 +1,31 @@
 
 #include "Preferences.h"
 
-#ifndef NVS_PATH
-  #define NVS_PATH "/nvs"
-#endif
-
-#if defined(NVS_USE_POSIX) || defined(NVS_USE_LITTLEFS) || defined(NVS_USE_SPIFFS)
+#if defined(NVS_USE_POSIX) || defined(NVS_USE_LITTLEFS) || defined(NVS_USE_SPIFFS) || defined(NVS_USE_WIFININA)
   // OK, use it.
 #elif defined(NVS_USE_DUMMY)
   // OK, warn about it.
-  #warning "Dummy implementation is used, Preferences won't actually store the values"
+  #warning "Dummy implementation is used (won't store any values)"
 #elif defined(PARTICLE) && (PLATFORM_ID == PLATFORM_ARGON || PLATFORM_ID == PLATFORM_BORON || PLATFORM_ID == PLATFORM_XENON)
   #define NVS_USE_POSIX
 #elif defined(PARTICLE) && (PLATFORM_ID == PLATFORM_BSOM || PLATFORM_ID == PLATFORM_B5SOM || PLATFORM_ID == PLATFORM_TRACKER)
   #define NVS_USE_POSIX
+#elif defined(ARDUINO) && (defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_MKRVIDOR4000))
+  #define NVS_USE_WIFININA
 #elif defined(ARDUINO) && (defined(ESP8266) || defined(ARDUINO_ARCH_RP2040))
   #define NVS_USE_LITTLEFS    // Use LittleFS by default
 #elif defined(ARDUINO) && defined(ESP32)
-  #error "For ESP32 devices, please use native Preferences library"
+  #error "For ESP32 devices, please use the native Preferences library"
 #else
   #error "FS API not implemented for the target platform"
+#endif
+
+#if defined(NVS_PATH)
+  // OK, use it.
+#elif defined(NVS_USE_WIFININA)
+  #define NVS_PATH "/fs/nvs"
+#else
+  #define NVS_PATH "/nvs"
 #endif
 
 //#define NVS_LOG
@@ -29,14 +35,17 @@
 #if defined(NVS_LOG) && defined(PARTICLE)
   static Logger prefsLog(NVS_LOG_NAME);
 
+  #define LOG_D(...)        prefsLog.trace(__VA_ARGS__)
   #define LOG_I(...)        prefsLog.info(__VA_ARGS__)
   #define LOG_W(...)        prefsLog.warn(__VA_ARGS__)
   #define LOG_E(...)        prefsLog.error(__VA_ARGS__)
 #elif defined(NVS_LOG) && defined(ARDUINO)
+  #define LOG_D(fmt, ...)   { Serial.printf("%010d [%s] DEBUG: ", millis(),  NVS_LOG_NAME); Serial.printf(fmt "\n", ##__VA_ARGS__); }
   #define LOG_I(fmt, ...)   { Serial.printf("%010d [%s] INFO: ", millis(),  NVS_LOG_NAME); Serial.printf(fmt "\n", ##__VA_ARGS__); }
   #define LOG_W(fmt, ...)   { Serial.printf("%010d [%s] WARN: ", millis(),  NVS_LOG_NAME); Serial.printf(fmt "\n", ##__VA_ARGS__); }
   #define LOG_E(fmt, ...)   { Serial.printf("%010d [%s] ERROR: ", millis(),  NVS_LOG_NAME); Serial.printf(fmt "\n", ##__VA_ARGS__); }
 #else
+  #define LOG_D(fmt, ...)
   #define LOG_I(fmt, ...)
   #define LOG_W(fmt, ...)
   #define LOG_E(fmt, ...)
@@ -46,6 +55,8 @@
   #include "prefs_impl_posix.h"
 #elif defined(NVS_USE_LITTLEFS) || defined(NVS_USE_SPIFFS)
   #include "prefs_impl_arduino.h"
+#elif defined(NVS_USE_WIFININA)
+  #include "prefs_impl_arduino_wifinina.h"
 #elif defined(NVS_USE_DUMMY)
   #include "prefs_impl_dummy.h"
 #endif
@@ -184,7 +195,7 @@ size_t Preferences::putBytes(const char* key, const void* buf, size_t len){
     String path = _path + key;
 
     if (_fs_exists(path.c_str())) {
-#ifdef NVS_USE_SPIFFS
+#if defined(NVS_USE_SPIFFS) || defined(NVS_USE_WIFININA)
         return _fs_update(path.c_str(), buf, len);
 #else
         if (_fs_verify(path.c_str(), buf, len)) {

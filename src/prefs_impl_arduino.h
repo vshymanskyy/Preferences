@@ -16,7 +16,7 @@ static bool _fs_init() {
 }
 
 static bool _fs_mkdir(const char *path) {
-    // Path are automatically created as needed
+    // Paths are automatically created as needed
     (void)path;
     return true;
 }
