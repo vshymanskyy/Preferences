@@ -18,11 +18,6 @@ static int _fs_create(const char* path, const void* buf, int bufsize) {
     return bufsize;
 }
 
-static int _fs_update(const char* path, const void* buf, int bufsize) {
-    (void)path; (void)buf; (void)bufsize;
-    return bufsize;
-}
-
 static int _fs_read(const char* path, void* buf, int bufsize) {
     (void)path; (void)buf; (void)bufsize;
     return -1;

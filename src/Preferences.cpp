@@ -347,11 +347,11 @@ size_t Preferences::getBytes(const char* key, void * buf, size_t maxLen){
         return len;
     }
 
-    if(len == -1){
+    if(len < 0){
         LOG_I("value not found: %s", key);
         return 0;
     }
-    if(len > maxLen){
+    if((size_t)len > maxLen){
         LOG_W("not enough space in buffer: %u < %u", maxLen, len);
         return 0;
     }

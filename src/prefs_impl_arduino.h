@@ -23,7 +23,7 @@ static bool _fs_mkdir(const char *path) {
 
 static bool verifyContent(File& f, const void* buf, int bufsize) {
     // TODO: read in chunks, remove this limitation
-    if (f.size() == bufsize && bufsize <= 1024) {
+    if (int(f.size()) == bufsize && bufsize <= 1024) {
         // Check if content is the same
         uint8_t tmp[bufsize];
         if (f.read((uint8_t*)tmp, bufsize) == bufsize) {
@@ -56,7 +56,7 @@ static int _fs_update(const char* path, const void* buf, int bufsize) {
             LOG_I("data matches, skip writing to %s", path);
             return bufsize;
         }
-        if (f.size() <= bufsize) {
+        if (int(f.size()) <= bufsize) {
             f.seek(0, SeekSet);
             return f.write((const uint8_t*)buf, bufsize);
         }
