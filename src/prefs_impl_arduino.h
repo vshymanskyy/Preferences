@@ -36,6 +36,7 @@ static bool verifyContent(File& f, const void* buf, int bufsize) {
 }
 
 static bool _fs_verify(const char* path, const void* buf, int bufsize) {
+    LOG_D("%s %s (%d bytes)", __FUNCTION__, path, bufsize);
     if (File f = FS.open(path, "r")) {
         return verifyContent(f, buf, bufsize);
     }
@@ -43,6 +44,7 @@ static bool _fs_verify(const char* path, const void* buf, int bufsize) {
 }
 
 static int _fs_create(const char* path, const void* buf, int bufsize) {
+    LOG_D("%s %s (%d bytes)", __FUNCTION__, path, bufsize);
     if (File f = FS.open(path, "w")) {
         return f.write((const uint8_t*)buf, bufsize);
     }
@@ -66,6 +68,7 @@ static int _fs_update(const char* path, const void* buf, int bufsize) {
 #endif
 
 static int _fs_read(const char* path, void* buf, int bufsize) {
+    LOG_D("%s %s (%d bytes)", __FUNCTION__, path, bufsize);
     if (File f = FS.open(path, "r")) {
         return f.read((uint8_t*)buf, bufsize);
     }
@@ -84,14 +87,17 @@ static bool _fs_exists(const char* path) {
 }
 
 static bool _fs_rename(const char* from, const char* to) {
+    LOG_D("%s %s => %s", __FUNCTION__, from, to);
     return FS.rename(from, to);
 }
 
 static bool _fs_unlink(const char* path) {
+    LOG_D("%s %s", __FUNCTION__, path);
     return FS.remove(path);
 }
 
 static bool _fs_clean_dir(const char* path) {
+    LOG_D("%s %s", __FUNCTION__, path);
     Dir dir = FS.openDir(path);
     while (dir.next()) {
 #ifdef NVS_USE_SPIFFS
@@ -102,5 +108,8 @@ static bool _fs_clean_dir(const char* path) {
         FS.remove(p.c_str());
         LOG_I("erased %s", p.c_str());
     }
+#ifdef NVS_USE_LITTLEFS
+    FS.remove(path);
+#endif
     return true;
 }

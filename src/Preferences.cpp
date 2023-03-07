@@ -28,6 +28,10 @@
   #define NVS_PATH "/nvs"
 #endif
 
+#if defined(NVS_USE_LITTLEFS)
+  #define NVS_ATOMIC_CLEAR
+#endif
+
 #define NVS_STAGING_FN  "\a_new?"
 #define NVS_DELETED_FN  "\a_del?"
 
@@ -43,10 +47,10 @@
   #define LOG_W(...)        prefsLog.warn(__VA_ARGS__)
   #define LOG_E(...)        prefsLog.error(__VA_ARGS__)
 #elif defined(NVS_LOG) && defined(ARDUINO)
-  #define LOG_D(fmt, ...)   { Serial.printf("%010d [%s] DEBUG: ", millis(),  NVS_LOG_NAME); Serial.printf(fmt "\n", ##__VA_ARGS__); }
-  #define LOG_I(fmt, ...)   { Serial.printf("%010d [%s] INFO: ", millis(),  NVS_LOG_NAME); Serial.printf(fmt "\n", ##__VA_ARGS__); }
-  #define LOG_W(fmt, ...)   { Serial.printf("%010d [%s] WARN: ", millis(),  NVS_LOG_NAME); Serial.printf(fmt "\n", ##__VA_ARGS__); }
-  #define LOG_E(fmt, ...)   { Serial.printf("%010d [%s] ERROR: ", millis(),  NVS_LOG_NAME); Serial.printf(fmt "\n", ##__VA_ARGS__); }
+  #define LOG_D(fmt, ...)   { Serial.printf("%6lu [%s] DEBUG: ", millis(),  NVS_LOG_NAME); Serial.printf(fmt "\n", ##__VA_ARGS__); }
+  #define LOG_I(fmt, ...)   { Serial.printf("%6lu [%s] INFO: ",  millis(),  NVS_LOG_NAME); Serial.printf(fmt "\n", ##__VA_ARGS__); }
+  #define LOG_W(fmt, ...)   { Serial.printf("%6lu [%s] WARN: ",  millis(),  NVS_LOG_NAME); Serial.printf(fmt "\n", ##__VA_ARGS__); }
+  #define LOG_E(fmt, ...)   { Serial.printf("%6lu [%s] ERROR: ", millis(),  NVS_LOG_NAME); Serial.printf(fmt "\n", ##__VA_ARGS__); }
 #else
   #define LOG_D(fmt, ...)
   #define LOG_I(fmt, ...)
@@ -90,12 +94,14 @@ bool Preferences::begin(const char * name, bool readOnly){
             LOG_E("Cannot create NVS_PATH");
             return false;
         }
+#if defined(NVS_ATOMIC_CLEAR)
         String deleted = String(NVS_PATH) + String("/" NVS_DELETED_FN);
         if (_fs_exists(deleted.c_str())) {
-            if (!_fs_clean_dir(deleted.c_str())) {
+            if (!_fs_clean_dir((deleted + "/").c_str())) {
                 LOG_E("Cannot cleanup a deleted namespace");
             }
         }
+#endif
         gPrefsFsInit = true;
     }
 
@@ -125,14 +131,22 @@ bool Preferences::clear(){
         return false;
     }
 
+#if defined(NVS_ATOMIC_CLEAR)
     String path = _path.substring(0, _path.length()-1);
     String deleted = String(NVS_PATH) + String("/" NVS_DELETED_FN);
     if (_fs_rename(path.c_str(), deleted.c_str())) {
-        return _fs_clean_dir(deleted.c_str());
+        return _fs_clean_dir((deleted + "/").c_str());
     } else {
         LOG_W("Cannot rename directory");
         return _fs_clean_dir(path.c_str());
     }
+#else
+    if (_fs_clean_dir(_path.c_str())) {
+        String p = _path.substring(0, _path.length()-1);
+        return _fs_mkdir(p.c_str());
+    }
+    return false;
+#endif
 }
 
 /*
