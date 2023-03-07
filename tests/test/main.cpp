@@ -10,21 +10,12 @@ void tearDown(void) {
 
 
 void test_bytes() {
-#ifdef ESP32
   const int count = 5;
   static uint32_t sizes[count] = { 1, 2, 2, 5, 50 };
   static const char* bytes[count] = {
     "0", "12", "AB", "Hello",
     "12345678901234567890123456789012345678901234567890"
   };
-#else
-  const int count = 6;
-  static uint32_t sizes[count] = { 0, 1, 2, 2, 5, 50 };
-  static const char* bytes[count] = {
-    "", "0", "12", "AB", "Hello",
-    "12345678901234567890123456789012345678901234567890"
-  };
-#endif
 
   Preferences prefs;
   TEST_ASSERT_TRUE(prefs.begin("test"));
@@ -33,7 +24,6 @@ void test_bytes() {
     const char* data = bytes[i];
     uint32_t len  = sizes[i];
     uint8_t buf[128] = { 0, };
-
 
     TEST_ASSERT_EQUAL_UINT(len, prefs.putBytes("aaa", data, len));
     TEST_ASSERT_TRUE(prefs.isKey("aaa"));
@@ -60,6 +50,19 @@ void test_bytes() {
   }
 
   prefs.clear();
+}
+
+void test_zero_bytes() {
+  Preferences prefs;
+  TEST_ASSERT_TRUE(prefs.begin("test"));
+
+  TEST_ASSERT_EQUAL_UINT(0, prefs.putBytes("bytes", "", 0));
+  TEST_ASSERT_TRUE(prefs.isKey("bytes"));
+  TEST_ASSERT_EQUAL_UINT(0, prefs.getBytesLength("bytes"));
+
+  TEST_ASSERT_EQUAL_UINT(0, prefs.putString("string", ""));
+  TEST_ASSERT_TRUE(prefs.isKey("string"));
+  TEST_ASSERT_EQUAL_STRING("", prefs.getString("string", "default").c_str());
 }
 
 void test_remove_key() {
@@ -136,6 +139,9 @@ int runUnityTests(void) {
   UNITY_BEGIN();
 
   RUN_TEST(test_bytes);
+#if !defined(ESP32)
+  RUN_TEST(test_zero_bytes);
+#endif
   RUN_TEST(test_utf8_key);
   RUN_TEST(test_utf8_value);
   RUN_TEST(test_remove_key);
