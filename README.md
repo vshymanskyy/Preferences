@@ -33,8 +33,8 @@ void loop() {}
 ```
 
 Preferences are stored in the internal flash filesystem in a bunch of `/nvs/{namespace}/{property}` files.  
-Filesystem should handle flash wearing, bad sectors and atomic `rename` file operation.  
-- `LittleFS` handles all that, so this is the default FS driver for ESP8266.  
+Filesystem should handle flash wearing, bad sectors and atomic `rename` file operation.
+- `LittleFS` handles all that, so this is the default FS driver for ESP8266. `SPIFFS` use is possible, but it is discouraged.
 - Particle Gen3 devices also operate on a built-in `LittleFS` filesystem.
 - Arduino Nano and MKR devices use the storage of the U-blox NINA module.
 
@@ -46,3 +46,7 @@ Differences:
 - `getType()` and `freeEntries()` methods are not supported (returning dummy values)
 - `putBytes()` and `putString()` allow writing empty values (length = 0)
 - `put*()` and `get*()` operations **don't fail** if the existing value has a different type
+
+## Known issues
+
+- `clear()` is not working on Arduino Nano 33 IoT, MKR1010, MKR VIDOR. This cannot be implemented, as WiFiNINA storage doesn't provide any API to remove or enumerate directories. If you need to clear a namespace on these devices, you'll have to erase each key individually using `remove()`.
