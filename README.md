@@ -44,3 +44,4 @@ Check out ESP32 [Preferences library](https://espressif-docs.readthedocs-hosted.
 Differences:
 - `partition_label` argument is not supported in `begin()`
 - `getType()` and `freeEntries()` methods are not supported (returning dummy values)
+- `putBytes()` and `putString()` allow writing empty values (length = 0)
