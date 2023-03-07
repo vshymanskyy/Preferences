@@ -44,7 +44,6 @@ static int _fs_read(const char* path, void* buf, int bufsize) {
     memset(buf, 0, bufsize);
     bufsize = min(bufsize, fsize);
 
-    LOG_D("Reading %d bytes", bufsize);
     if (bufsize < 0 || bufsize > 1024) { return -1; }
     uint8_t tmp[bufsize+4];
     if (WiFiStorage.read(path, 0, tmp, bufsize+4)) {
@@ -80,8 +79,12 @@ static int _fs_update(const char* path, const void* buf, int bufsize) {
 
 
 static bool _fs_exists(const char* path) {
-    LOG_D("%s %s", __FUNCTION__, path);
     return WiFiStorage.exists(path);
+}
+
+static bool _fs_rename(const char* from, const char* to) {
+    LOG_D("%s %s => %s", __FUNCTION__, from, to);
+    return WiFiStorage.rename(from, to);
 }
 
 static bool _fs_unlink(const char* path) {
@@ -90,5 +93,6 @@ static bool _fs_unlink(const char* path) {
 }
 
 static bool _fs_clean_dir(const char* path) {
+    LOG_D("%s %s", __FUNCTION__, path);
     return false; // TODO: no API for this
 }

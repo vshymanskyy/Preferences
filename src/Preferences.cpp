@@ -28,6 +28,9 @@
   #define NVS_PATH "/nvs"
 #endif
 
+#define NVS_STAGING_FN  "\a_new?"
+#define NVS_DELETED_FN  "\a_del?"
+
 //#define NVS_LOG
 
 #define NVS_LOG_NAME "prefs"
@@ -56,10 +59,12 @@
 #elif defined(NVS_USE_LITTLEFS) || defined(NVS_USE_SPIFFS)
   #include "prefs_impl_arduino.h"
 #elif defined(NVS_USE_WIFININA)
-  #include "prefs_impl_arduino_wifinina.h"
+  #include "prefs_impl_wifinina.h"
 #elif defined(NVS_USE_DUMMY)
   #include "prefs_impl_dummy.h"
 #endif
+
+static bool gPrefsFsInit;
 
 Preferences::Preferences()
     : _started(false)
@@ -76,16 +81,28 @@ bool Preferences::begin(const char * name, bool readOnly){
     }
     _readOnly = readOnly;
 
-    if (!_fs_init()) {
-        return false;
+    if (!gPrefsFsInit) {
+        if (!_fs_init()) {
+            LOG_E("FS not initialized");
+            return false;
+        }
+        if (!_fs_mkdir(NVS_PATH)) {
+            LOG_E("Cannot create NVS_PATH");
+            return false;
+        }
+        String deleted = String(NVS_PATH) + String("/" NVS_DELETED_FN);
+        if (_fs_exists(deleted.c_str())) {
+            if (!_fs_clean_dir(deleted.c_str())) {
+                LOG_E("Cannot cleanup a deleted namespace");
+            }
+        }
+        gPrefsFsInit = true;
     }
 
-    if (_fs_mkdir(NVS_PATH)) {
-        String p = String(NVS_PATH) + String("/") + name;
-        if (_fs_mkdir(p.c_str())) {
-            _started = true;
-            _path = String(NVS_PATH) + String("/") + name + String("/");
-        }
+    String p = String(NVS_PATH) + String("/") + name;
+    if (_fs_mkdir(p.c_str())) {
+        _started = true;
+        _path = String(NVS_PATH) + String("/") + name + String("/");
     }
 
     return _started;
@@ -108,7 +125,14 @@ bool Preferences::clear(){
         return false;
     }
 
-    return _fs_clean_dir(_path.c_str());
+    String path = _path.substring(0, _path.length()-1);
+    String deleted = String(NVS_PATH) + String("/" NVS_DELETED_FN);
+    if (_fs_rename(path.c_str(), deleted.c_str())) {
+        return _fs_clean_dir(deleted.c_str());
+    } else {
+        LOG_W("Cannot rename directory");
+        return _fs_clean_dir(path.c_str());
+    }
 }
 
 /*
@@ -203,7 +227,7 @@ size_t Preferences::putBytes(const char* key, const void* buf, size_t len){
             return len;
         }
 
-        String next = _path + "\a_?\a_?";
+        String next = _path + NVS_STAGING_FN;
 
         int written = _fs_create(next.c_str(), buf, len);
 
