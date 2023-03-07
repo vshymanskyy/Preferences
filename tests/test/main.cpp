@@ -35,7 +35,50 @@ void test_bytes() {
       TEST_ASSERT_EQUAL_MEMORY(data, buf, len);
     }
   }
+}
 
+void test_remove_key() {
+  Preferences prefs;
+  TEST_ASSERT_TRUE(prefs.begin("test"));
+  TEST_ASSERT_EQUAL_UINT(7, prefs.putString("aaa", "value A"));
+  TEST_ASSERT_EQUAL_UINT(7, prefs.putString("bbb", "value B"));
+
+  TEST_ASSERT_EQUAL_STRING("value A", prefs.getString("aaa").c_str());
+  TEST_ASSERT_EQUAL_STRING("value B", prefs.getString("bbb").c_str());
+
+  TEST_ASSERT_TRUE(prefs.remove("aaa"));
+  TEST_ASSERT_FALSE(prefs.isKey("aaa"));
+  TEST_ASSERT_TRUE(prefs.isKey("bbb"));
+
+  TEST_ASSERT_EQUAL_STRING("", prefs.getString("aaa").c_str());
+  TEST_ASSERT_EQUAL_STRING("value B", prefs.getString("bbb").c_str());
+}
+
+void test_clear_namespace() {
+  Preferences prefsA, prefsB;
+  TEST_ASSERT_TRUE(prefsA.begin("testA"));
+  TEST_ASSERT_TRUE(prefsB.begin("testB"));
+
+  // Add values and verify
+  TEST_ASSERT_EQUAL_UINT(7, prefsA.putString("value", "value A"));
+  TEST_ASSERT_EQUAL_UINT(7, prefsB.putString("value", "value B"));
+  TEST_ASSERT_EQUAL_STRING("value A", prefsA.getString("value").c_str());
+  TEST_ASSERT_EQUAL_STRING("value B", prefsB.getString("value").c_str());
+
+  // Clear A, check that B is intact
+  TEST_ASSERT_TRUE(prefsA.clear());
+  TEST_ASSERT_EQUAL_STRING("", prefsA.getString("value").c_str());
+  TEST_ASSERT_EQUAL_STRING("value B", prefsB.getString("value").c_str());
+
+  // Clear B
+  TEST_ASSERT_TRUE(prefsB.clear());
+  TEST_ASSERT_EQUAL_STRING("", prefsB.getString("value").c_str());
+
+  // Add values and verify (again)
+  TEST_ASSERT_EQUAL_UINT(9, prefsA.putString("value", "value AAA"));
+  TEST_ASSERT_EQUAL_UINT(9, prefsB.putString("value", "value BBB"));
+  TEST_ASSERT_EQUAL_STRING("value AAA", prefsA.getString("value").c_str());
+  TEST_ASSERT_EQUAL_STRING("value BBB", prefsB.getString("value").c_str());
 }
 
 void test_utf8_key() {
@@ -48,15 +91,16 @@ void test_utf8_key() {
 void test_utf8_value() {
   Preferences prefs;
   TEST_ASSERT_TRUE(prefs.begin("test"));
-  prefs.putString("unicode", "😁");
-  String got = prefs.getString("unicode");
-  TEST_ASSERT_EQUAL_STRING("😁", got.c_str());
+  TEST_ASSERT_EQUAL_UINT(4, prefs.putString("unicode", "😁"));
+  TEST_ASSERT_EQUAL_STRING("😁", prefs.getString("unicode").c_str());
 }
 
 int runUnityTests(void) {
   UNITY_BEGIN();
 
   RUN_TEST(test_bytes);
+  RUN_TEST(test_remove_key);
+  RUN_TEST(test_clear_namespace);
   RUN_TEST(test_utf8_key);
   RUN_TEST(test_utf8_value);
 
@@ -65,7 +109,10 @@ int runUnityTests(void) {
 
 
 void setup() {
+  Serial.begin(115200);
   delay(1000);
+  Serial.println();
+  Serial.println();
 
   runUnityTests();
 }
