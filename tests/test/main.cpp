@@ -11,25 +11,25 @@ void tearDown(void) {
 
 void test_bytes() {
 #ifdef ESP32
-  static const char* bytes[] = {
-    "12", "AB", "Hello",
+  const int count = 5;
+  static uint32_t sizes[count] = { 1, 2, 2, 5, 50 };
+  static const char* bytes[count] = {
+    "0", "12", "AB", "Hello",
     "12345678901234567890123456789012345678901234567890"
   };
-  static uint32_t sizes[] = { 2, 2, 5, 50 };
-  const unsigned  testsCount = 4;
 #else
-  static const char* bytes[] = {
-    "", "1", "12", "AB", "Hello",
+  const int count = 6;
+  static uint32_t sizes[count] = { 0, 1, 2, 2, 5, 50 };
+  static const char* bytes[count] = {
+    "", "0", "12", "AB", "Hello",
     "12345678901234567890123456789012345678901234567890"
   };
-  static uint32_t sizes[] = { 0, 1, 2, 2, 5, 50 };
-  const unsigned  testsCount = 6;
 #endif
 
   Preferences prefs;
   TEST_ASSERT_TRUE(prefs.begin("test"));
 
-  for (int i = 0; i < testsCount; i++) {
+  for (int i = 0; i < count; i++) {
     const char* data = bytes[i];
     uint32_t len  = sizes[i];
     uint8_t buf[128] = { 0, };
@@ -45,7 +45,7 @@ void test_bytes() {
   }
 
   // Do the same, but decreasing size
-  for (int i = testsCount-2; i >= 0; i--) {
+  for (int i = count-2; i >= 0; i--) {
     const char* data = bytes[i];
     uint32_t len  = sizes[i];
     uint8_t buf[128] = { 0, };
@@ -147,7 +147,7 @@ int runUnityTests(void) {
 
 void setup() {
   Serial.begin(115200);
-  delay(1000);
+  delay(2000);
   Serial.println();
   Serial.println();
 
