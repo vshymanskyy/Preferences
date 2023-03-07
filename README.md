@@ -49,4 +49,4 @@ Differences:
 
 ## Known issues
 
-- `clear()` is not working on Arduino Nano 33 IoT, MKR1010, MKR VIDOR. This cannot be implemented, as WiFiNINA storage doesn't provide any API to remove or enumerate directories. If you need to clear a namespace on these devices, you'll have to erase each key individually using `remove()`.
+- `clear()` is not working on Arduino Nano 33 IoT, MKR1010, MKR VIDOR. This cannot be implemented, as WiFiNINA storage doesn't provide any API to remove or enumerate directories ([along with other bugs](https://github.com/arduino-libraries/WiFiNINA/issues/created_by/vshymanskyy)). If you need to clear a namespace on these devices, you'll have to erase each key individually using `remove()`.
