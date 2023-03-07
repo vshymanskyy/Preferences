@@ -45,3 +45,4 @@ Differences:
 - `partition_label` argument is not supported in `begin()`
 - `getType()` and `freeEntries()` methods are not supported (returning dummy values)
 - `putBytes()` and `putString()` allow writing empty values (length = 0)
+- `put*()` and `get*()` operations **don't fail** if the existing value has a different type
