@@ -8,6 +8,8 @@
 #  include "Arduino.h"
 #endif
 
+#include "Preferences_setup.h"
+
 #include <math.h>
 
 typedef enum {
@@ -20,7 +22,11 @@ class Preferences
     typedef double double_t;
 
     protected:
+#if defined(NVS_USE_DCT)
+        dct_handle_t _handle;
+#else
         String _path;
+#endif
         bool _started;
         bool _readOnly;
     public:
