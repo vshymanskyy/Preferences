@@ -6,6 +6,7 @@
 Provides **ESP32**-compatible **Preferences** API for a wider variety of platforms:
 - **ESP8266** using LittleFS
 - **RP2040** boards with [Pico core](https://github.com/earlephilhower/arduino-pico)
+- **Realtek** boards with [Ameba Arduino SDK](https://github.com/ambiot/ambd_arduino)
 - Arduino **Nano 33 IoT, MKR1010, MKR VIDOR** using WiFiNINA storage
 - Particle Gen3 devices: **Argon, Boron, Xenon, Tracker, BSOM**
 
