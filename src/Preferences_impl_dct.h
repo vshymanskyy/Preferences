@@ -86,6 +86,9 @@ void Preferences::end(){
 
 /*
  * Clear all keys in opened preferences
+ *
+ * NOTE: DCT library does not provide API to clear all values in an open module.
+ *       So we do this: close, unregister, register, open
  * */
 
 bool Preferences::clear(){
