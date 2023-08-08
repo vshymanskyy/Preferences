@@ -1,10 +1,32 @@
 
-#define DCT_BEGIN_ADDR              (0x200000 - 0x48000)
-#define	DCT_MODULE_NUM              16
-#define DCT_VARIABLE_NAME_SIZE      16
-#define DCT_VARIABLE_VALUE_SIZE     128
-#define DCT_WEAR_LEVELING           0
-#define DCT_BACKUP                  1
+/*
+ * Place the DCT at the end of Flash memory by default.
+ *
+ * Module size is 4k
+ *  max values in each moudle = 4024 / (16 + 128+4) = 27
+ * Max module number is 6
+ *  if backup enabled, the total module number is 6 + 1*6 = 12, the size is 48k
+ *  if wear leveling enabled, the total module number is 6 + 2*6 + 3*6 = 36, the size is 144k"
+ */
+
+#ifndef DCT_FLASH_SIZE
+  #define DCT_FLASH_SIZE              0x200000
+#endif
+#ifndef DCT_MODULE_NUM
+  #define DCT_MODULE_NUM              6
+#endif
+#ifndef DCT_VARIABLE_NAME_SIZE
+  #define DCT_VARIABLE_NAME_SIZE      16
+#endif
+#ifndef DCT_VARIABLE_VALUE_SIZE
+  #define DCT_VARIABLE_VALUE_SIZE     (128+4)
+#endif
+#ifndef DCT_WEAR_LEVELING
+  #define DCT_WEAR_LEVELING           0
+#endif
+#ifndef DCT_BACKUP
+  #define DCT_BACKUP                  1
+#endif
 
 static bool gPrefsDctInit;
 
@@ -16,7 +38,19 @@ bool Preferences::begin(const char * name, bool readOnly){
 
     int32_t ret;
     if (!gPrefsDctInit) {
-        ret = dct_init(DCT_BEGIN_ADDR, DCT_MODULE_NUM,
+#ifdef DCT_BEGIN_ADDR
+        size_t addr = DCT_BEGIN_ADDR;
+#else
+        size_t dct_size = DCT_MODULE_NUM;
+#if DCT_WEAR_LEVELING
+        dct_size *= 6;
+#elif DCT_BACKUP
+        dct_size *= 2;
+#endif
+        size_t addr = DCT_FLASH_SIZE - (dct_size * 4096);
+#endif
+
+        ret = dct_init(addr, DCT_MODULE_NUM,
                        DCT_VARIABLE_NAME_SIZE, DCT_VARIABLE_VALUE_SIZE,
                        DCT_BACKUP, DCT_WEAR_LEVELING);
         if (DCT_SUCCESS != ret) {
