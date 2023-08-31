@@ -34,7 +34,8 @@ void setup() {
   counter++;
 
   // Print the counter to Serial Monitor
-  Serial.printf("Current counter value: %u\n", counter);
+  Serial.print("Current counter value: ");
+  Serial.println(counter);
 
   // Store the counter to the Preferences
   preferences.putUInt("counter", counter);

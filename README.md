@@ -25,7 +25,8 @@ void setup() {
   prefs.begin("my-app");
 
   int counter = prefs.getInt("counter", 1); // default to 1
-  Serial.printf("Reboot count: %d\n", counter);
+  Serial.print("Reboot count: ");
+  Serial.println(counter);
   counter++;
   prefs.putInt("counter", counter);
 }
