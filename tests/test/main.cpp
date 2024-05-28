@@ -67,6 +67,22 @@ void test_zero_bytes() {
   TEST_ASSERT_TRUE(prefs.clear());
 }
 
+void test_string() {
+  Preferences prefs;
+  TEST_ASSERT_TRUE(prefs.begin("test"));
+
+  TEST_ASSERT_EQUAL_UINT(7, prefs.putString("aaa", "value A"));
+  TEST_ASSERT_EQUAL_UINT(7, prefs.putString("bbb", "value B"));
+
+  char buffer[8];
+
+  prefs.getString("aaa", buffer, sizeof(buffer));
+  TEST_ASSERT_EQUAL_STRING("value A", buffer);
+
+  prefs.getString("bbb", buffer, sizeof(buffer));
+  TEST_ASSERT_EQUAL_STRING("value B", buffer);
+}
+
 void test_remove_key() {
   Preferences prefs;
   TEST_ASSERT_TRUE(prefs.begin("test"));
@@ -144,6 +160,7 @@ int runUnityTests(void) {
 #if !defined(ESP32)
   RUN_TEST(test_zero_bytes);
 #endif
+  RUN_TEST(test_string);
   RUN_TEST(test_utf8_key);
   RUN_TEST(test_utf8_value);
   RUN_TEST(test_remove_key);
