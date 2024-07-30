@@ -49,6 +49,9 @@ Differences:
 - `putBytes()` and `putString()` allow writing empty values (length = 0)
 - `put*()` and `get*()` operations **don't fail** if the existing value has a different type
 
+> [!IMPORTANT]
+> Keys are ASCII strings. The maximum key length is **15 characters**
+
 ## Known issues
 
 - `clear()` is not working on Arduino Nano 33 IoT, MKR1010, MKR VIDOR. This cannot be implemented, as WiFiNINA storage doesn't provide any API to remove or enumerate directories ([along with other bugs](https://github.com/arduino-libraries/WiFiNINA/issues/created_by/vshymanskyy)). If you need to clear a namespace on these devices, you'll have to erase each key individually using `remove()`.
