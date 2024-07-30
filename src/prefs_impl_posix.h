@@ -47,6 +47,7 @@ static bool _fs_verify(const char* path, const void* buf, int bufsize) {
                 }
             }
         }
+        close(fd);
     }
     return false;
 }
