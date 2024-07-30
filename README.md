@@ -8,7 +8,7 @@ Provides **ESP32**-compatible **Preferences** API for a wider variety of platfor
 - **RP2040** boards with [Pico core](https://github.com/earlephilhower/arduino-pico)
 - **Realtek** boards with [Ameba Arduino SDK](https://github.com/ambiot/ambd_arduino)
 - Arduino **Nano 33 IoT, MKR1010, MKR VIDOR** using WiFiNINA storage
-- Particle Gen3 devices: **Argon, Boron, Xenon, Tracker, BSOM**
+- Particle: **Argon, Boron, Xenon, Tracker, BSOM, P2 (Photon 2)**
 
 Available from: [`Arduino Library Manager`](https://www.arduino.cc/reference/en/libraries/preferences), [`PlatformIO`](https://registry.platformio.org/libraries/vshymanskyy/Preferences), [`Particle Build`](https://build.particle.io/libs/Preferences)
 
