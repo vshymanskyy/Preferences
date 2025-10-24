@@ -1,6 +1,6 @@
 # Preferences
 
-[![Arduino Library Manager](https://img.shields.io/static/v1?label=Arduino&message=v2.1.0&logo=arduino&logoColor=white&color=blue)](https://www.ardu-badge.com/Preferences)
+[![Arduino Library Manager](https://img.shields.io/static/v1?label=Arduino&message=v2.2.2&logo=arduino&logoColor=white&color=blue)](https://www.ardu-badge.com/Preferences)
 [![PlatformIO Registry](https://badges.registry.platformio.org/packages/vshymanskyy/library/Preferences.svg)](https://registry.platformio.org/packages/libraries/vshymanskyy/Preferences) 
 
 Provides **ESP32**-compatible **Preferences** API for a wider variety of platforms:
