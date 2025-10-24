@@ -43,6 +43,7 @@ static bool _fs_verify(const char* path, const void* buf, int bufsize) {
             uint8_t tmp[bufsize];
             if (read(fd, tmp, bufsize) == bufsize) {
                 if (!memcmp(buf, tmp, bufsize)) {
+                    close(fd);
                     return true;
                 }
             }
