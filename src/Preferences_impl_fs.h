@@ -1,8 +1,6 @@
 
 #if defined(NVS_PATH)
   // OK, use it.
-#elif defined(NVS_USE_WIFININA)
-  #define NVS_PATH "/fs/nvs"
 #else
   #define NVS_PATH "/nvs"
 #endif
@@ -18,8 +16,6 @@
   #include "prefs_impl_posix.h"
 #elif defined(NVS_USE_LITTLEFS) || defined(NVS_USE_SPIFFS)
   #include "prefs_impl_arduino.h"
-#elif defined(NVS_USE_WIFININA)
-  #include "prefs_impl_wifinina.h"
 #elif defined(NVS_USE_DUMMY)
   #include "prefs_impl_dummy.h"
 #endif

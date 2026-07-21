@@ -26,6 +26,8 @@
 
 #if defined(NVS_USE_DCT)
   #include "Preferences_impl_dct.h"
+#elif defined(NVS_USE_SFUD)
+  #include "Preferences_impl_sfud.h"
 #else
   #include "Preferences_impl_fs.h"
 #endif

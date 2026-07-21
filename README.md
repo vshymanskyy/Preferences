@@ -7,8 +7,10 @@ Provides **ESP32**-compatible **Preferences** API for a wider variety of platfor
 - **ESP8266** using LittleFS
 - **RP2040** boards with [Pico core](https://github.com/earlephilhower/arduino-pico)
 - **Realtek** boards with [Ameba Arduino SDK](https://github.com/ambiot/ambd_arduino)
-- Arduino **Nano 33 IoT, MKR1010, MKR VIDOR** using WiFiNINA storage
+- **Wio Terminal** via [`SFUD`](https://github.com/Seeed-Studio/Seeed_Arduino_SFUD)
 - Particle: **Muon, Photon 2, Argon, Boron, Xenon, Tracker, BSOM, MSOM, P2**
+
+Arduino **Nano 33 IoT, MKR1010, MKR VIDOR** support was removed, because `WiFiNINA` library now provides `WiFiPreferences.h` natively.
 
 Available from: [`Arduino Library Manager`](https://www.arduino.cc/reference/en/libraries/preferences), [`PlatformIO`](https://registry.platformio.org/libraries/vshymanskyy/Preferences), [`Particle Build`](https://build.particle.io/libs/Preferences)
 
@@ -39,6 +41,7 @@ Filesystem should handle flash wearing, bad sectors and atomic `rename` file ope
 - `LittleFS` handles all that, so this is the default FS driver for ESP8266. `SPIFFS` use is possible, but it is discouraged.
 - Particle Gen3 devices also operate on a built-in `LittleFS` filesystem.
 - Arduino Nano and MKR devices use the storage of the U-blox NINA module.
+- Wio Terminal uses the first 8KB of external SPI flash, accessed via `sfud`. This is not a real filesystem: it's a simple append-only log that gets compacted once it runs out of space.
 
 ## API
 
@@ -51,7 +54,3 @@ Differences:
 
 > [!IMPORTANT]
 > Keys are ASCII strings. The maximum key length is **15 characters**
-
-## Known issues
-
-- `clear()` is not working on Arduino Nano 33 IoT, MKR1010, MKR VIDOR. This cannot be implemented, as WiFiNINA storage doesn't provide any API to remove or enumerate directories ([along with other bugs](https://github.com/arduino-libraries/WiFiNINA/issues/created_by/vshymanskyy)). If you need to clear a namespace on these devices, you'll have to erase each key individually using `remove()`.
