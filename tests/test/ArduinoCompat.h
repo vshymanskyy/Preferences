@@ -1,6 +1,8 @@
 #ifndef TEST_ARDUINO_COMPAT_H
 #define TEST_ARDUINO_COMPAT_H
 
+#ifdef __cplusplus
+
 #include <stdint.h>
 #include <string.h>
 #include <string>
@@ -41,5 +43,7 @@ private:
 inline String operator+(const char* lhs, const String& rhs) {
     return String(lhs) + rhs;
 }
+
+#endif // __cplusplus
 
 #endif
