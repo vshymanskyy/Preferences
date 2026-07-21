@@ -32,7 +32,7 @@ jobs:
             package_url: https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
             libraries: ""
           - name: Realtek AmebaD
-            fqbn: realtek:AmebaD:AMB21
+            fqbn: realtek:AmebaD:AMB21 (RTL8722DM)
             platform: realtek:AmebaD
             package_url: https://github.com/Ameba-AIoT/ameba-arduino-d/raw/master/Arduino_package/package_realtek_amebad_index.json
             libraries: ""

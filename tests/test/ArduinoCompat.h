@@ -1,9 +1,8 @@
 #ifndef TEST_ARDUINO_COMPAT_H
 #define TEST_ARDUINO_COMPAT_H
 
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
+#include <stdint.h>
+#include <string.h>
 #include <string>
 
 class String {
