@@ -173,6 +173,21 @@ bool Preferences::isKey(const char* key) {
  * Get a key value
  * */
 
+size_t Preferences::getString(const char* key, char* value, const size_t maxLen){
+    if(!_started || !key || !value || !maxLen){
+        return 0;
+    }
+
+    uint16_t len = maxLen - 1;
+    int32_t ret = dct_get_variable_new(&_handle, (char*)key, value, &len);
+    if (DCT_SUCCESS != ret) {
+        // Not found (or doesn't fit): match the ESP32 API and leave the buffer untouched.
+        return 0;
+    }
+    value[len] = '\0';
+    return len;
+}
+
 String Preferences::getString(const char* key, const String defaultValue){
     if(!_started || !key){
         return defaultValue;

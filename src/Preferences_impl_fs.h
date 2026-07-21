@@ -154,6 +154,29 @@ bool Preferences::isKey(const char* key) {
  * Get a key value
  * */
 
+size_t Preferences::getString(const char* key, char* value, const size_t maxLen){
+    if(!_started || !key || !value || !maxLen){
+        return 0;
+    }
+
+    String path = _path + key;
+
+    int len = _fs_get_size(path.c_str());
+    if (len < 0) {
+        // Not found: match the ESP32 API and leave the buffer untouched.
+        return 0;
+    }
+    if ((size_t)len > maxLen - 1) {
+        // Doesn't fit: match the ESP32 API and leave the buffer untouched.
+        return 0;
+    }
+    if (len > 0 && _fs_read(path.c_str(), value, len) != len) {
+        return 0;
+    }
+    value[len] = '\0';
+    return (size_t)len;
+}
+
 String Preferences::getString(const char* key, const String defaultValue){
     if(!_started || !key){
         return defaultValue;

@@ -207,26 +207,4 @@ bool Preferences::getBool(const char* key, const bool defaultValue) {
     return getUChar(key, defaultValue ? 1 : 0) == 1;
 }
 
-size_t Preferences::getString(const char* key, char* value, const size_t maxLen){
-    if(!_started || !key || !value || !maxLen){
-        return 0;
-    }
-    // getBytes() returning 0 is ambiguous: it means both "doesn't fit /
-    // not found" and "found, genuinely a 0-length value". Resolve that by
-    // checking existence and the true length up front, so the buffer is
-    // only ever touched once we know the value actually fits.
-    if (!isKey(key)) {
-        return 0;
-    }
-    size_t len = getBytesLength(key);
-    if (len > maxLen - 1) {
-        // Doesn't fit: match the ESP32 API and leave the buffer untouched.
-        return 0;
-    }
-    if (len > 0) {
-        getBytes(key, value, len);
-    }
-    value[len] = '\0';
-    return len;
-}
 

@@ -290,6 +290,23 @@ size_t Preferences::getBytes(const char* key, void* dst, size_t maxLen) {
     return h.val_len;
 }
 
+size_t Preferences::getString(const char* key, char* value, const size_t maxLen) {
+    uint8_t key_len = _nvs_name_len(key);
+    if (!_started || !value || !maxLen || !key_len) return 0;
+    uint32_t off = _nvs_find(_path.c_str(), (uint8_t)_path.length(), key, key_len);
+    if (off == 0xFFFFFFFF) return 0; // not found, buffer untouched
+    _NvsHdr h;
+    sfud_read(_sfud_dev, SFUD_NVS_FLASH_OFFSET + off, sizeof(h), (uint8_t*)&h);
+    if ((size_t)h.val_len > maxLen - 1) {
+        // Doesn't fit: match the ESP32 API and leave the buffer untouched.
+        return 0;
+    }
+    if (h.val_len > 0)
+        sfud_read(_sfud_dev, SFUD_NVS_FLASH_OFFSET + off + sizeof(h) + h.ns_len + h.key_len, h.val_len, (uint8_t*)value);
+    value[h.val_len] = '\0';
+    return h.val_len;
+}
+
 String Preferences::getString(const char* key, const String defaultValue) {
     uint8_t key_len = _nvs_name_len(key);
     if (!_started || !key_len) return defaultValue;
