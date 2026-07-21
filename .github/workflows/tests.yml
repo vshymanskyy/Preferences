@@ -73,6 +73,7 @@ jobs:
           - esp8266-spiffs
           - wioterminal
           - rp2040connect
+          - rp2350
 
     steps:
       - name: Checkout

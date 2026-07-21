@@ -5,7 +5,7 @@
 
 Provides **ESP32**-compatible **Preferences** API for a wider variety of platforms:
 - **ESP8266** using LittleFS
-- **RP2040** boards with [Pico core](https://github.com/earlephilhower/arduino-pico)
+- **RP2040, RP2350** boards with [Pico core](https://github.com/earlephilhower/arduino-pico)
 - **Realtek** boards with [Ameba Arduino SDK](https://github.com/ambiot/ambd_arduino)
 - **Wio Terminal** via [`SFUD`](https://github.com/Seeed-Studio/Seeed_Arduino_SFUD)
 - Particle: **Muon, Photon 2, Argon, Boron, Xenon, Tracker, BSOM, MSOM, P2**
@@ -38,7 +38,6 @@ Preferences are stored in the internal flash filesystem in a bunch of `/nvs/{nam
 Filesystem should handle flash wearing, bad sectors and atomic `rename` file operation.
 - `LittleFS` handles all that, so this is the default FS driver for ESP8266. `SPIFFS` use is possible, but it is discouraged.
 - Particle Gen3 devices also operate on a built-in `LittleFS` filesystem.
-- Arduino Nano and MKR devices use the storage of the U-blox NINA module.
 - Wio Terminal uses the first 8KB of external SPI flash, accessed via `sfud`. This is not a real filesystem: it's a simple append-only log that gets compacted once it runs out of space.
 
 ## API
