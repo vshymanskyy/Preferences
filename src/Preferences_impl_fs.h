@@ -116,8 +116,9 @@ size_t Preferences::putBytes(const char* key, const void* buf, size_t len){
     String path = _path + key;
 
     if (_fs_exists(path.c_str())) {
-#if defined(NVS_USE_SPIFFS) || defined(NVS_USE_WIFININA)
-        return _fs_update(path.c_str(), buf, len);
+#if defined(NVS_USE_SPIFFS)
+        int written = _fs_update(path.c_str(), buf, len);
+        return (written < 0) ? 0 : (size_t)written;
 #else
         if (_fs_verify(path.c_str(), buf, len)) {
             LOG_I("data matches, skip writing to %s", path.c_str());
@@ -128,14 +129,15 @@ size_t Preferences::putBytes(const char* key, const void* buf, size_t len){
 
         int written = _fs_create(next.c_str(), buf, len);
 
-        if (_fs_rename(next.c_str(), path.c_str())) {
+        if (written >= 0 && _fs_rename(next.c_str(), path.c_str())) {
             return written;
         } else {
             return 0;
         }
 #endif
     } else {
-        return _fs_create(path.c_str(), buf, len);
+        int written = _fs_create(path.c_str(), buf, len);
+        return (written < 0) ? 0 : (size_t)written;
     }
 }
 
@@ -173,7 +175,7 @@ String Preferences::getString(const char* key, const String defaultValue){
 
 size_t Preferences::getBytesLength(const char* key){
     if(!_started || !key){
-        return -1;
+        return 0;
     }
 
     String path = _path + key;
@@ -183,19 +185,18 @@ size_t Preferences::getBytesLength(const char* key){
 }
 
 size_t Preferences::getBytes(const char* key, void * buf, size_t maxLen){
-    if(!key){
+    if(!_started || !key){
         return 0;
     }
     String path = _path + key;
 
     int len = _fs_get_size(path.c_str());
-    if(!len || !buf || !maxLen){
-        return len;
-    }
-
     if(len < 0){
         LOG_I("value not found: %s", key);
         return 0;
+    }
+    if(!len || !buf || !maxLen){
+        return len;
     }
     if((size_t)len > maxLen){
         LOG_W("not enough space in buffer: %u < %u", maxLen, len);

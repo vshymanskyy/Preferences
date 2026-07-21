@@ -26,13 +26,23 @@ jobs:
             platform: Seeeduino:samd
             package_url: https://files.seeedstudio.com/arduino/package_seeeduino_boards_index.json
             libraries: Seeed Arduino SFUD
+          - name: Raspberry Pi Pico
+            fqbn: rp2040:rp2040:rpipico
+            platform: rp2040:rp2040
+            package_url: https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+            libraries: ""
+          - name: Realtek AmebaD
+            fqbn: realtek:AmebaD:AMB21
+            platform: realtek:AmebaD
+            package_url: https://github.com/Ameba-AIoT/ameba-arduino-d/raw/master/Arduino_package/package_realtek_amebad_index.json
+            libraries: ""
         sketch:
           - examples/StartCounter
           - examples/Prefs2Struct
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Arduino CLI
         uses: arduino/setup-arduino-cli@v2

@@ -13,7 +13,7 @@
   #define SFUD_NVS_FLASH_SIZE      (8*1024)
 #endif
 #ifndef SFUD_NVS_MAX_NAME
-  #define SFUD_NVS_MAX_NAME        31
+  #define SFUD_NVS_MAX_NAME        15
 #endif
 #ifndef SFUD_NVS_MAX_VALUE
   #define SFUD_NVS_MAX_VALUE       1024
@@ -51,6 +51,13 @@ static bool _hdr_valid(const _NvsHdr& h) {
     return h.ns_len  <= SFUD_NVS_MAX_NAME  &&
            h.key_len <= SFUD_NVS_MAX_NAME  &&
            h.val_len <= SFUD_NVS_MAX_VALUE;
+}
+
+static uint8_t _nvs_name_len(const char* name) {
+    if (!name) return 0;
+    size_t n = strlen(name);
+    if (!n || n > SFUD_NVS_MAX_NAME) return 0;
+    return (uint8_t)n;
 }
 
 // Returns offset past the last written record (= start of free space)
@@ -170,7 +177,7 @@ static void _nvs_check_region() {
 // --- Preferences member functions ---
 
 bool Preferences::begin(const char* name, bool readOnly) {
-    if (_started || !name || !strlen(name)) return false;
+    if (_started || !_nvs_name_len(name)) return false;
     _readOnly = readOnly;
     if (!_sfud_dev) {
         // Use an already-probed device (e.g. initialized by the BSP) if available,
@@ -223,20 +230,21 @@ bool Preferences::clear() {
 }
 
 bool Preferences::remove(const char* key) {
-    if (!_started || !key || _readOnly) return false;
-    uint32_t off = _nvs_find(_path.c_str(), _path.length(), key, strlen(key));
+    uint8_t key_len = _nvs_name_len(key);
+    if (!_started || _readOnly || !key_len) return false;
+    uint32_t off = _nvs_find(_path.c_str(), (uint8_t)_path.length(), key, key_len);
     if (off == 0xFFFFFFFF) return false;
     _nvs_invalidate(off);
     return true;
 }
 
 size_t Preferences::putBytes(const char* key, const void* buf, size_t len) {
-    if (!_started || !key || _readOnly) return 0;
+    uint8_t key_len = _nvs_name_len(key);
+    if (!_started || _readOnly || !key_len) return 0;
     if (!buf && len > 0) return 0;
     if (len > SFUD_NVS_MAX_VALUE) return 0;
     const char* ns      = _path.c_str();
     uint8_t     ns_len  = (uint8_t)_path.length();
-    uint8_t     key_len = (uint8_t)strlen(key);
     uint32_t    old     = _nvs_find(ns, ns_len, key, key_len);
     if (old != 0xFFFFFFFF) {
         _NvsHdr h;
@@ -253,13 +261,15 @@ size_t Preferences::putBytes(const char* key, const void* buf, size_t len) {
 }
 
 bool Preferences::isKey(const char* key) {
-    if (!_started || !key) return false;
-    return _nvs_find(_path.c_str(), _path.length(), key, strlen(key)) != 0xFFFFFFFF;
+    uint8_t key_len = _nvs_name_len(key);
+    if (!_started || !key_len) return false;
+    return _nvs_find(_path.c_str(), (uint8_t)_path.length(), key, key_len) != 0xFFFFFFFF;
 }
 
 size_t Preferences::getBytesLength(const char* key) {
-    if (!_started || !key) return 0;
-    uint32_t off = _nvs_find(_path.c_str(), _path.length(), key, strlen(key));
+    uint8_t key_len = _nvs_name_len(key);
+    if (!_started || !key_len) return 0;
+    uint32_t off = _nvs_find(_path.c_str(), (uint8_t)_path.length(), key, key_len);
     if (off == 0xFFFFFFFF) return 0;
     _NvsHdr h;
     sfud_read(_sfud_dev, SFUD_NVS_FLASH_OFFSET + off, sizeof(h), (uint8_t*)&h);
@@ -267,8 +277,9 @@ size_t Preferences::getBytesLength(const char* key) {
 }
 
 size_t Preferences::getBytes(const char* key, void* dst, size_t maxLen) {
-    if (!key) return 0;
-    uint32_t off = _nvs_find(_path.c_str(), _path.length(), key, strlen(key));
+    uint8_t key_len = _nvs_name_len(key);
+    if (!_started || !key_len) return 0;
+    uint32_t off = _nvs_find(_path.c_str(), (uint8_t)_path.length(), key, key_len);
     if (off == 0xFFFFFFFF) return 0;
     _NvsHdr h;
     sfud_read(_sfud_dev, SFUD_NVS_FLASH_OFFSET + off, sizeof(h), (uint8_t*)&h);
@@ -280,8 +291,9 @@ size_t Preferences::getBytes(const char* key, void* dst, size_t maxLen) {
 }
 
 String Preferences::getString(const char* key, const String defaultValue) {
-    if (!_started || !key) return defaultValue;
-    uint32_t off = _nvs_find(_path.c_str(), _path.length(), key, strlen(key));
+    uint8_t key_len = _nvs_name_len(key);
+    if (!_started || !key_len) return defaultValue;
+    uint32_t off = _nvs_find(_path.c_str(), (uint8_t)_path.length(), key, key_len);
     if (off == 0xFFFFFFFF) return defaultValue;
     _NvsHdr h;
     sfud_read(_sfud_dev, SFUD_NVS_FLASH_OFFSET + off, sizeof(h), (uint8_t*)&h);

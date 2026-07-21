@@ -191,7 +191,7 @@ String Preferences::getString(const char* key, const String defaultValue){
 
 size_t Preferences::getBytesLength(const char* key){
     if(!_started || !key){
-        return -1;
+        return 0;
     }
 
     char buff[DCT_VARIABLE_VALUE_SIZE+1];
@@ -205,7 +205,7 @@ size_t Preferences::getBytesLength(const char* key){
 }
 
 size_t Preferences::getBytes(const char* key, void * buf, size_t maxLen){
-    if(!key){
+    if(!_started || !key){
         return 0;
     }
 

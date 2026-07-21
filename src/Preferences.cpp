@@ -98,6 +98,7 @@ size_t Preferences::putBool(const char* key, const bool value){
 }
 
 size_t Preferences::putString(const char* key, const char* value){
+    if (!value) { return 0; }
     return putBytes(key, (void*)value, strlen(value));
 }
 
@@ -116,37 +117,49 @@ PreferenceType Preferences::getType(const char* key) {
 
 int8_t Preferences::getChar(const char* key, const int8_t defaultValue){
     int8_t value = defaultValue;
-    getBytes(key, (void*) &value, sizeof(value));
+    if (getBytes(key, (void*) &value, sizeof(value)) != sizeof(value)) {
+        value = defaultValue;
+    }
     return value;
 }
 
 uint8_t Preferences::getUChar(const char* key, const uint8_t defaultValue){
     uint8_t value = defaultValue;
-    getBytes(key, (void*) &value, sizeof(value));
+    if (getBytes(key, (void*) &value, sizeof(value)) != sizeof(value)) {
+        value = defaultValue;
+    }
     return value;
 }
 
 int16_t Preferences::getShort(const char* key, const int16_t defaultValue){
     int16_t value = defaultValue;
-    getBytes(key, (void*) &value, sizeof(value));
+    if (getBytes(key, (void*) &value, sizeof(value)) != sizeof(value)) {
+        value = defaultValue;
+    }
     return value;
 }
 
 uint16_t Preferences::getUShort(const char* key, const uint16_t defaultValue){
     uint16_t value = defaultValue;
-    getBytes(key, (void*) &value, sizeof(value));
+    if (getBytes(key, (void*) &value, sizeof(value)) != sizeof(value)) {
+        value = defaultValue;
+    }
     return value;
 }
 
 int32_t Preferences::getInt(const char* key, const int32_t defaultValue){
     int32_t value = defaultValue;
-    getBytes(key, (void*) &value, sizeof(value));
+    if (getBytes(key, (void*) &value, sizeof(value)) != sizeof(value)) {
+        value = defaultValue;
+    }
     return value;
 }
 
 uint32_t Preferences::getUInt(const char* key, const uint32_t defaultValue){
     uint32_t value = defaultValue;
-    getBytes(key, (void*) &value, sizeof(value));
+    if (getBytes(key, (void*) &value, sizeof(value)) != sizeof(value)) {
+        value = defaultValue;
+    }
     return value;
 }
 
@@ -160,25 +173,33 @@ uint32_t Preferences::getULong(const char* key, const uint32_t defaultValue){
 
 int64_t Preferences::getLong64(const char* key, const int64_t defaultValue){
     int64_t value = defaultValue;
-    getBytes(key, (void*) &value, sizeof(value));
+    if (getBytes(key, (void*) &value, sizeof(value)) != sizeof(value)) {
+        value = defaultValue;
+    }
     return value;
 }
 
 uint64_t Preferences::getULong64(const char* key, const uint64_t defaultValue){
     uint64_t value = defaultValue;
-    getBytes(key, (void*) &value, sizeof(value));
+    if (getBytes(key, (void*) &value, sizeof(value)) != sizeof(value)) {
+        value = defaultValue;
+    }
     return value;
 }
 
 float_t Preferences::getFloat(const char* key, const float_t defaultValue) {
     float_t value = defaultValue;
-    getBytes(key, (void*) &value, sizeof(value));
+    if (getBytes(key, (void*) &value, sizeof(value)) != sizeof(value)) {
+        value = defaultValue;
+    }
     return value;
 }
 
 double_t Preferences::getDouble(const char* key, const double_t defaultValue) {
     double_t value = defaultValue;
-    getBytes(key, (void*) &value, sizeof(value));
+    if (getBytes(key, (void*) &value, sizeof(value)) != sizeof(value)) {
+        value = defaultValue;
+    }
     return value;
 }
 
@@ -190,7 +211,21 @@ size_t Preferences::getString(const char* key, char* value, const size_t maxLen)
     if(!_started || !key || !value || !maxLen){
         return 0;
     }
-    size_t len = getBytes(key, value, maxLen-1);
+    // getBytes() returning 0 is ambiguous: it means both "doesn't fit /
+    // not found" and "found, genuinely a 0-length value". Resolve that by
+    // checking existence and the true length up front, so the buffer is
+    // only ever touched once we know the value actually fits.
+    if (!isKey(key)) {
+        return 0;
+    }
+    size_t len = getBytesLength(key);
+    if (len > maxLen - 1) {
+        // Doesn't fit: match the ESP32 API and leave the buffer untouched.
+        return 0;
+    }
+    if (len > 0) {
+        getBytes(key, value, len);
+    }
     value[len] = '\0';
     return len;
 }

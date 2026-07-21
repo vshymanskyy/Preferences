@@ -1,6 +1,9 @@
 #include <fcntl.h>
 #include <dirent.h>
+#include <errno.h>
+#include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 static bool _fs_init() {
     return true;
@@ -54,7 +57,7 @@ static bool _fs_verify(const char* path, const void* buf, int bufsize) {
 }
 
 static int _fs_create(const char* path, const void* buf, int bufsize) {
-    int fd = open(path, O_WRONLY | O_CREAT);
+    int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd == -1) {
         return -1;
     }
@@ -110,7 +113,7 @@ static bool _fs_clean_dir(const char* path) {
             continue;
         }
         String p = String(path) + name;
-        if (0 != unlink(p)) {
+        if (0 != unlink(p.c_str())) {
             closedir(dir);
             return false;
         } else {

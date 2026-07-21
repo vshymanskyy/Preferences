@@ -1,0 +1,52 @@
+name: Unity Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.env }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        env:
+          - native
+          - esp8266
+          - esp8266-spiffs
+          - wioterminal
+          - rp2040connect
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Cache PlatformIO packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.platformio
+          key: pio-${{ matrix.env }}-${{ hashFiles('tests/platformio.ini') }}
+          restore-keys: |
+            pio-${{ matrix.env }}-
+
+      - name: Install PlatformIO
+        run: pip install --upgrade platformio
+
+      - name: Run test
+        working-directory: tests
+        run: |
+          if [ "${{ matrix.env }}" = "native" ]; then
+            pio test -e native
+          else
+            pio test -e ${{ matrix.env }} --without-uploading --without-testing
+          fi

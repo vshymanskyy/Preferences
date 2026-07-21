@@ -10,8 +10,6 @@ Provides **ESP32**-compatible **Preferences** API for a wider variety of platfor
 - **Wio Terminal** via [`SFUD`](https://github.com/Seeed-Studio/Seeed_Arduino_SFUD)
 - Particle: **Muon, Photon 2, Argon, Boron, Xenon, Tracker, BSOM, MSOM, P2**
 
-Arduino **Nano 33 IoT, MKR1010, MKR VIDOR** support was removed, because `WiFiNINA` library now provides `WiFiPreferences.h` natively.
-
 Available from: [`Arduino Library Manager`](https://www.arduino.cc/reference/en/libraries/preferences), [`PlatformIO`](https://registry.platformio.org/libraries/vshymanskyy/Preferences), [`Particle Build`](https://build.particle.io/libs/Preferences)
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
@@ -50,7 +48,10 @@ Differences:
 - `partition_label` argument is not supported in `begin()`
 - `getType()` and `freeEntries()` methods are not supported (returning dummy values)
 - `putBytes()` and `putString()` allow writing empty values (length = 0)
-- `put*()` and `get*()` operations **don't fail** if the existing value has a different type
+- `get*()` operations **don't fail** if the existing value has a different type, and a size mismatch is treated like a missing key (the provided default value is returned)
 
 > [!IMPORTANT]
 > Keys are ASCII strings. The maximum key length is **15 characters**
+
+> [!NOTE]
+> Arduino **Nano 33 IoT, MKR1010, MKR VIDOR** support was removed, because `WiFiNINA` library now provides `WiFiPreferences.h` natively
