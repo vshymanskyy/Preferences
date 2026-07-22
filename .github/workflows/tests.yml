@@ -95,6 +95,10 @@ jobs:
       - name: Install PlatformIO
         run: pip install --upgrade platformio
 
+      - name: Package library
+        working-directory: tests
+        run: pio pkg pack ../ --output Preferences.tar.gz
+
       - name: Run test
         working-directory: tests
         run: |
