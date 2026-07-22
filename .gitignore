@@ -1,3 +1,4 @@
 **/.pio
 **/.arduino-ci
 **/.pio-nvs
+*.tar.gz

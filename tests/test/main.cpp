@@ -1,6 +1,11 @@
 #include <unity.h>
 
-#include <Preferences.h>
+#if defined(NVS_USE_WIFININA)
+  // For WiFiNINA compatibility tests
+  #include <WiFiPreferences.h>
+#else
+  #include <Preferences.h>
+#endif
 
 void setUp(void) {
 }
@@ -374,7 +379,7 @@ int runUnityTests(void) {
   RUN_TEST(test_missing_key_defaults);
   RUN_TEST(test_remove_key);
   RUN_TEST(test_clear_namespace);
-#if !defined(ESP32)
+#if !(defined(ESP32) || defined(NVS_USE_WIFININA))
   RUN_TEST(test_zero_bytes);
   RUN_TEST(test_type_reinterpret_same_size);
 #endif

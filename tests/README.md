@@ -3,15 +3,16 @@
 ## Quick test
 
 ```sh
-pio test -e esp8266
+rm -rf .pio
+pio pkg pack ../ --output Preferences.tar.gz
+
+# Run tests
+pio test -e native
+
+# Check builds
+pio test -vv --without-uploading --without-testing
 ```
 
-## Full rebuild with logs enabled
+## Rebuild with logs enabled
 
 Edit `Preferences.cpp`, uncomment `#define NVS_LOG`
-
-Then run:
-
-```sh
-rm -rf .pio && pio test -e esp8266 -v
-```
