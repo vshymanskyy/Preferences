@@ -157,6 +157,25 @@ static bool _nvs_append(const char* ns, uint8_t ns_len, const char* key, uint8_t
     return true;
 }
 
+// Scan the region; erase it if the content looks corrupt (not erased-flash and not valid records).
+// This handles the case where the region was never erased (factory state, SPIFFS remnants, etc.)
+// and sfud_write would silently fail to program 1-bits over existing 0-bits.
+static void _nvs_check_region() {
+    uint32_t off = 0;
+    while (off + sizeof(_NvsHdr) <= (uint32_t)SFUD_NVS_FLASH_SIZE) {
+        _NvsHdr h;
+        sfud_read(_sfud_dev, SFUD_NVS_FLASH_OFFSET + off, sizeof(h), (uint8_t*)&h);
+        if (h.magic == 0xFFFFFFFF) return; // erased flash, all good
+        if ((h.magic == SFUD_NVS_MAGIC || h.magic == 0x00000000) && _hdr_valid(h)) {
+            off += _rec_size(h.ns_len, h.key_len, h.val_len);
+            continue;
+        }
+        LOG_W("NVS region corrupt, erasing");
+        sfud_erase(_sfud_dev, SFUD_NVS_FLASH_OFFSET, SFUD_NVS_FLASH_SIZE);
+        return;
+    }
+}
+
 static bool _nvs_init_dev() {
     if (!_sfud_dev) {
         // Use an already-probed device (e.g. initialized by the BSP) if available,
@@ -177,25 +196,6 @@ static bool _nvs_init_dev() {
         }
     }
     return _sfud_dev;
-}
-
-// Scan the region; erase it if the content looks corrupt (not erased-flash and not valid records).
-// This handles the case where the region was never erased (factory state, SPIFFS remnants, etc.)
-// and sfud_write would silently fail to program 1-bits over existing 0-bits.
-static void _nvs_check_region() {
-    uint32_t off = 0;
-    while (off + sizeof(_NvsHdr) <= (uint32_t)SFUD_NVS_FLASH_SIZE) {
-        _NvsHdr h;
-        sfud_read(_sfud_dev, SFUD_NVS_FLASH_OFFSET + off, sizeof(h), (uint8_t*)&h);
-        if (h.magic == 0xFFFFFFFF) return; // erased flash, all good
-        if ((h.magic == SFUD_NVS_MAGIC || h.magic == 0x00000000) && _hdr_valid(h)) {
-            off += _rec_size(h.ns_len, h.key_len, h.val_len);
-            continue;
-        }
-        LOG_W("NVS region corrupt, erasing");
-        sfud_erase(_sfud_dev, SFUD_NVS_FLASH_OFFSET, SFUD_NVS_FLASH_SIZE);
-        return;
-    }
 }
 
 // --- Preferences member functions ---

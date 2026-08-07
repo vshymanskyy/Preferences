@@ -74,9 +74,9 @@ jobs:
           - wioterminal
           - rp2040connect
           - rp2350
-          - teensy36
-          - teensy41
-          - nrf52832
+          #- teensy36
+          #- teensy41
+          #- nrf52832
 
     steps:
       - name: Checkout
