@@ -133,12 +133,14 @@ static bool _nvs_compact() {
     return true;
 }
 
-static bool _nvs_append(const char* ns, uint8_t ns_len, const char* key, uint8_t key_len, const void* val, uint16_t val_len) {
+static bool _nvs_append(const char* ns, uint8_t ns_len, const char* key, uint8_t key_len, const void* val, uint16_t val_len, bool* compacted) {
+    *compacted = false;
     uint32_t end = _nvs_end();
     uint32_t sz  = _rec_size(ns_len, key_len, val_len);
     if (end + sz > (uint32_t)SFUD_NVS_FLASH_SIZE) {
         LOG_I("compacting flash log");
         if (!_nvs_compact()) return false;
+        *compacted = true;
         end = _nvs_end();
         if (end + sz > (uint32_t)SFUD_NVS_FLASH_SIZE) { LOG_E("flash full"); return false; }
     }
@@ -153,6 +155,28 @@ static bool _nvs_append(const char* ns, uint8_t ns_len, const char* key, uint8_t
         return false;
     }
     return true;
+}
+
+static bool _nvs_init_dev() {
+    if (!_sfud_dev) {
+        // Use an already-probed device (e.g. initialized by the BSP) if available,
+        // otherwise initialize sfud ourselves.
+        sfud_flash* dev = sfud_get_device(SFUD_NVS_DEVICE_INDEX);
+        if (!dev || !dev->chip.capacity) {
+            if (sfud_init() != SFUD_SUCCESS) { LOG_E("sfud_init failed"); return false; }
+            #ifdef SFUD_USING_QSPI
+            sfud_qspi_fast_read_enable(sfud_get_device(SFUD_W25Q32_DEVICE_INDEX), 2);
+            #endif
+            dev = sfud_get_device(SFUD_NVS_DEVICE_INDEX);
+        }
+        if (!dev || !dev->chip.capacity) { LOG_E("sfud device not ready"); return false; }
+        _sfud_dev = dev;
+        if (!_nvs_ready) {
+            _nvs_check_region();
+            _nvs_ready = true;
+        }
+    }
+    return _sfud_dev;
 }
 
 // Scan the region; erase it if the content looks corrupt (not erased-flash and not valid records).
@@ -178,25 +202,8 @@ static void _nvs_check_region() {
 
 bool Preferences::begin(const char* name, bool readOnly) {
     if (_started || !_nvs_name_len(name)) return false;
+    if (!_nvs_init_dev()) return false;
     _readOnly = readOnly;
-    if (!_sfud_dev) {
-        // Use an already-probed device (e.g. initialized by the BSP) if available,
-        // otherwise initialize sfud ourselves.
-        sfud_flash* dev = sfud_get_device(SFUD_NVS_DEVICE_INDEX);
-        if (!dev || !dev->chip.capacity) {
-            if (sfud_init() != SFUD_SUCCESS) { LOG_E("sfud_init failed"); return false; }
-            #ifdef SFUD_USING_QSPI
-            sfud_qspi_fast_read_enable(sfud_get_device(SFUD_W25Q32_DEVICE_INDEX), 2);
-            #endif
-            dev = sfud_get_device(SFUD_NVS_DEVICE_INDEX);
-        }
-        if (!dev || !dev->chip.capacity) { LOG_E("sfud device not ready"); return false; }
-        _sfud_dev = dev;
-        if (!_nvs_ready) {
-            _nvs_check_region();
-            _nvs_ready = true;
-        }
-    }
     _path    = name;
     _started = true;
     return true;
@@ -207,6 +214,17 @@ void Preferences::end() {
     _path    = "";
     _started = false;
 }
+
+#ifdef NVS_FORMAT_ENABLE
+
+bool Preferences::format() {
+    if (!_nvs_init_dev()) return false;
+    sfud_err err = sfud_erase(_sfud_dev, SFUD_NVS_FLASH_OFFSET, SFUD_NVS_FLASH_SIZE);
+    _nvs_ready = false; // force _nvs_check_region() on next begin()
+    return (SFUD_SUCCESS == err);
+}
+
+#endif
 
 bool Preferences::clear() {
     if (!_started || _readOnly) return false;
@@ -255,8 +273,18 @@ size_t Preferences::putBytes(const char* key, const void* buf, size_t len) {
             if (len == 0 || memcmp(tmp, buf, len) == 0) return len; // unchanged, skip write
         }
     }
-    if (!_nvs_append(ns, ns_len, key, key_len, buf, (uint16_t)len)) return 0;
-    if (old != 0xFFFFFFFF) _nvs_invalidate(old);
+    bool compacted = false;
+    if (!_nvs_append(ns, ns_len, key, key_len, buf, (uint16_t)len, &compacted)) return 0;
+    // If _nvs_append() had to compact, every offset computed before this
+    // call - including `old` - is stale: compaction erases and rewrites
+    // the whole region, relocating live records to new offsets.
+    // Invalidating `old` now would zero out whatever unrelated record now
+    // sits at that offset. The superseded value (still "latest" when
+    // compaction ran, so compaction kept a copy of it) is harmless to
+    // leave behind: it's no longer the latest record for this key - the
+    // one just appended is - so reads already ignore it, and the next
+    // compaction pass will drop it for good.
+    if (old != 0xFFFFFFFF && !compacted) _nvs_invalidate(old);
     return len;
 }
 

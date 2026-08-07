@@ -14,7 +14,13 @@
 #elif defined(ARDUINO) && (defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_MKRVIDOR4000))
   #error "Please use the native WiFiNINA library (WiFiPreferences.h)"
 #elif defined(ARDUINO) && (defined(ESP8266) || defined(ARDUINO_ARCH_RP2040))
-  #define NVS_USE_LITTLEFS    // Use LittleFS by default
+  #define NVS_USE_LITTLEFS    // Use LittleFS
+#elif defined(ARDUINO) && defined(TEENSYDUINO)
+  #define NVS_USE_LITTLEFS
+  #define NVS_LFS_TEENSY      // Use LittleFS_Program (internal flash)
+#elif defined(ARDUINO) && defined(ARDUINO_ARCH_NRF52)
+  #define NVS_USE_LITTLEFS
+  #define NVS_LFS_NRF52       // Use Adafruit_LittleFS (InternalFS)
 #elif defined(ARDUINO) && defined(ARDUINO_ARCH_AMEBAD)
   #define NVS_USE_DCT
 #elif defined(ARDUINO) && (defined(ARDUINO_SEEED_WIO_TERMINAL) || defined(SEEED_WIO_TERMINAL) || defined(WIO_TERMINAL))

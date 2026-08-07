@@ -8,17 +8,17 @@ static bool _fs_mkdir(const char *path) {
     return true;
 }
 
-static bool _fs_verify(const char* path, const void* buf, int bufsize) {
+static bool _fs_verify(const char* path, const void* buf, size_t bufsize) {
     (void)path; (void)buf; (void)bufsize;
     return true;
 }
 
-static int _fs_create(const char* path, const void* buf, int bufsize) {
+static int _fs_create(const char* path, const void* buf, size_t bufsize) {
     (void)path; (void)buf; (void)bufsize;
     return bufsize;
 }
 
-static int _fs_read(const char* path, void* buf, int bufsize) {
+static int _fs_read(const char* path, void* buf, size_t bufsize) {
     (void)path; (void)buf; (void)bufsize;
     return -1;
 }
@@ -47,3 +47,11 @@ static bool _fs_clean_dir(const char* path) {
     (void)path;
     return true;
 }
+
+#ifdef NVS_FORMAT_ENABLE
+
+static bool _fs_format() {
+    return true;
+}
+
+#endif

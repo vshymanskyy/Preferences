@@ -14,8 +14,10 @@
 
 #if defined(NVS_USE_POSIX)
   #include "prefs_impl_posix.h"
-#elif defined(NVS_USE_LITTLEFS) || defined(NVS_USE_SPIFFS)
+#elif defined(NVS_USE_LITTLEFS)
   #include "prefs_impl_arduino.h"
+#elif defined(NVS_USE_SPIFFS)
+  #include "prefs_impl_spiffs.h"
 #elif defined(NVS_USE_DUMMY)
   #include "prefs_impl_dummy.h"
 #endif
@@ -64,6 +66,28 @@ void Preferences::end(){
     _path = "";
     _started = false;
 }
+
+/*
+ * Wipe the whole underlying filesystem, including all namespaces
+ * */
+
+#ifdef NVS_FORMAT_ENABLE
+
+bool Preferences::format(){
+    if (!_fs_init()) {
+        LOG_E("FS not initialized");
+        return false;
+    }
+    if (!_fs_format()) {
+        return false;
+    }
+    // The root NVS_PATH (and any pending atomic-clear leftovers) is gone now:
+    // force the next begin() to recreate it instead of assuming it still exists.
+    gPrefsFsInit = false;
+    return true;
+}
+
+#endif
 
 /*
  * Clear all keys in opened preferences

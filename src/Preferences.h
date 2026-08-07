@@ -76,6 +76,10 @@ class Preferences
         size_t getBytesLength(const char* key);
         size_t getBytes(const char* key, void * buf, size_t maxLen);
         size_t freeEntries();
+
+        #ifdef NVS_FORMAT_ENABLE
+        static bool format();
+        #endif
 };
 
 #endif

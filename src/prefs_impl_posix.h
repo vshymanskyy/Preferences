@@ -36,7 +36,49 @@ static bool _fs_mkdir(const char *path) {
     }
 }
 
-static bool _fs_verify(const char* path, const void* buf, int bufsize) {
+#ifdef NVS_FORMAT_ENABLE
+
+static bool _fs_rmdir_recursive(const String& path) {
+    DIR* dir = opendir(path.c_str());
+    if (!dir) {
+        return (errno == ENOENT); // nothing to remove
+    }
+
+    struct dirent entry;
+    struct dirent *result;
+    bool ok = true;
+
+    for (int ret = readdir_r(dir, &entry, &result);
+         result != NULL && ret == 0;
+         ret = readdir_r(dir, &entry, &result))
+    {
+        const char* name = entry.d_name;
+        if (!strcmp(name, ".") || !strcmp(name, "..")) {
+            continue;
+        }
+        String p = path + "/" + name;
+        struct stat st;
+        if (0 == stat(p.c_str(), &st) && S_ISDIR(st.st_mode)) {
+            if (!_fs_rmdir_recursive(p)) ok = false;
+        } else if (0 != unlink(p.c_str())) {
+            ok = false;
+        }
+    }
+    closedir(dir);
+
+    if (ok && 0 != rmdir(path.c_str())) {
+        ok = false;
+    }
+    return ok;
+}
+
+static bool _fs_format() {
+    return _fs_rmdir_recursive(NVS_PATH);
+}
+
+#endif
+
+static bool _fs_verify(const char* path, const void* buf, size_t bufsize) {
     int fd = open(path, O_RDONLY);
     if (fd >= 0) {
         struct stat st;
@@ -56,7 +98,7 @@ static bool _fs_verify(const char* path, const void* buf, int bufsize) {
     return false;
 }
 
-static int _fs_create(const char* path, const void* buf, int bufsize) {
+static int _fs_create(const char* path, const void* buf, size_t bufsize) {
     int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd == -1) {
         return -1;
@@ -66,7 +108,7 @@ static int _fs_create(const char* path, const void* buf, int bufsize) {
     return len;
 }
 
-static int _fs_read(const char* path, void* buf, int bufsize) {
+static int _fs_read(const char* path, void* buf, size_t bufsize) {
     int fd = open(path, O_RDONLY);
     if (fd == -1) {
         return -1;
