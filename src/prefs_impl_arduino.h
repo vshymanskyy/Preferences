@@ -57,7 +57,7 @@ static bool verifyContent(File& f, const void* buf, size_t bufsize) {
     if (f.size() == bufsize && bufsize <= 1024) {
         // Check if content is the same
         uint8_t tmp[bufsize];
-        if (f.read((uint8_t*)tmp, bufsize) == bufsize) {
+        if ((size_t)f.read((uint8_t*)tmp, bufsize) == bufsize) {
             if (!memcmp(buf, tmp, bufsize)) {
                 return true;
             }

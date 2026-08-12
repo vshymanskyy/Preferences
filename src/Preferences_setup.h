@@ -2,6 +2,8 @@
 #ifndef _PREFERENCES_SETUP_H_
 #define _PREFERENCES_SETUP_H_
 
+//#define NVS_FORMAT_ENABLE
+
 #if defined(NVS_USE_POSIX) || defined(NVS_USE_LITTLEFS) || defined(NVS_USE_SPIFFS) || defined(NVS_USE_DCT) || defined(NVS_USE_SFUD)
   // OK, use it.
 #elif defined(NVS_USE_DUMMY)
