@@ -1,6 +1,6 @@
 {
   "name": "Preferences",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "license": "MIT",
   "description": "Preferences library for ESP8266, RP2040, Realtek Ameba and Particle Gen3. Compatible with ESP32 API.",
   "keywords": "preferences, settings, storage, fs, filesystem",
